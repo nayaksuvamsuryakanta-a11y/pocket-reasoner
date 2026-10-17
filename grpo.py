@@ -42,6 +42,8 @@ def plan_batches(num_generations, per_device_batch, prompts_per_step):
     the number of answers it writes at once to be a whole number of groups, which holds when it is exactly
     num_generations * prompts_per_step, so the micro-batch size must divide that.
     """
+    if per_device_batch < 1:
+        raise SystemExit("--per-device-batch must be at least 1.")
     if num_generations < 2:
         raise SystemExit("GRPO needs --num-generations of at least 2: it compares answers within a group.")
     answers = num_generations * prompts_per_step

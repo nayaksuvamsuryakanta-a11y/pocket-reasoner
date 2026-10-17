@@ -114,6 +114,8 @@ def plan_steps(n_examples, batch_size, grad_accum, epochs, warmup_frac=0.03):
     Warm-up is given in whole steps because every transformers version accepts that;
     the older `warmup_ratio` option is deprecated in transformers v5.
     """
+    if batch_size < 1 or grad_accum < 1:
+        raise SystemExit("--batch-size and --grad-accum must be at least 1.")
     steps_per_epoch = math.ceil(n_examples / (batch_size * grad_accum))
     total = max(1, math.ceil(steps_per_epoch * epochs))
     return total, max(1, round(warmup_frac * total))

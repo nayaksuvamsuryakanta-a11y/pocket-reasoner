@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import grpo
 import train
 
 
@@ -36,6 +37,18 @@ class InspectSingleRowTests(unittest.TestCase):
                                 train.cmd_inspect(args)
 
         self.assertIn("Token lengths: median 3, p90 3, max 3", output.getvalue())
+
+
+class BatchArgumentTests(unittest.TestCase):
+    def test_plan_steps_rejects_nonpositive_batch_factors(self):
+        for batch_size, grad_accum in ((0, 1), (1, 0)):
+            with self.subTest(batch_size=batch_size, grad_accum=grad_accum):
+                with self.assertRaises(SystemExit):
+                    train.plan_steps(8, batch_size, grad_accum, 1)
+
+    def test_plan_batches_rejects_nonpositive_device_batch(self):
+        with self.assertRaises(SystemExit):
+            grpo.plan_batches(num_generations=8, per_device_batch=0, prompts_per_step=2)
 
 
 if __name__ == "__main__":
