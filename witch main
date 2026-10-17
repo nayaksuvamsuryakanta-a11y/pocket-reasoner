@@ -1,0 +1,38 @@
+[1mdiff --git a/grpo.py b/grpo.py[m
+[1mindex d39cd3d..9167ba0 100644[m
+[1m--- a/grpo.py[m
+[1m+++ b/grpo.py[m
+[36m@@ -42,6 +42,8 @@[m [mdef plan_batches(num_generations, per_device_batch, prompts_per_step):[m
+     the number of answers it writes at once to be a whole number of groups, which holds when it is exactly[m
+     num_generations * prompts_per_step, so the micro-batch size must divide that.[m
+     """[m
+[32m+[m[32m    if per_device_batch < 1:[m
+[32m+[m[32m        raise SystemExit("--per-device-batch must be at least 1.")[m
+     if num_generations < 2:[m
+         raise SystemExit("GRPO needs --num-generations of at least 2: it compares answers within a group.")[m
+     answers = num_generations * prompts_per_step[m
+[1mdiff --git a/train.py b/train.py[m
+[1mindex 61f625a..f019811 100644[m
+[1m--- a/train.py[m
+[1m+++ b/train.py[m
+[36m@@ -114,6 +114,8 @@[m [mdef plan_steps(n_examples, batch_size, grad_accum, epochs, warmup_frac=0.03):[m
+     Warm-up is given in whole steps because every transformers version accepts that;[m
+     the older `warmup_ratio` option is deprecated in transformers v5.[m
+     """[m
+[32m+[m[32m    if batch_size < 1 or grad_accum < 1:[m
+[32m+[m[32m        raise SystemExit("--batch-size and --grad-accum must be at least 1.")[m
+     steps_per_epoch = math.ceil(n_examples / (batch_size * grad_accum))[m
+     total = max(1, math.ceil(steps_per_epoch * epochs))[m
+     return total, max(1, round(warmup_frac * total))[m
+[36m@@ -213,9 +215,9 @@[m [mdef cmd_inspect(a):[m
+     source = a.data or DATASET[m
+     print(f"Checked {n} rows of {source} with the {a.base} tokenizer: {len(lengths)} convert cleanly, {bad} do not.")[m
+     if lengths:[m
+[31m-        q = statistics.quantiles(lengths, n=10)[m
+[32m+[m[32m        p90 = statistics.quantiles(lengths, n=10)[-1] if len(lengths) > 1 else lengths[0][m
+         print(f"Token lengths: median {int(statistics.median(lengths))}, "[m
+[31m-              f"p90 {int(q[-1])}, max {max(lengths)}")[m
+[32m+[m[32m              f"p90 {int(p90)}, max {max(lengths)}")[m
+         for cap in (2048, 4096, 8192):[m
+             share = sum(l <= cap for l in lengths) / len(lengths)[m
+             print(f"  fits in {cap:>5} tokens: {share:.0%}")[m
