@@ -29,7 +29,11 @@ def main():
     a = ap.parse_args()
 
     tok = AutoTokenizer.from_pretrained(a.model)
-    dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
+    if torch.cuda.is_available():
+        # Older GPUs emulate bf16 slowly, so use fp16 on them.
+        dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
+    else:
+        dtype = torch.float32
     try:  # newer transformers call this argument `dtype`
         model = AutoModelForCausalLM.from_pretrained(a.model, dtype=dtype, device_map="auto")
     except TypeError:  # older releases only know `torch_dtype`
