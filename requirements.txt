@@ -1,0 +1,16 @@
+torch>=2.1
+# Qwen3 models need transformers 4.51 or newer (older versions fail with KeyError: 'qwen3')
+transformers>=4.51
+datasets>=2.19
+peft>=0.12
+accelerate>=0.33
+# harness.py (scoring) and grpo.py (reinforcement learning) check answers with Math-Verify:
+math-verify[antlr4_13_2]
+# grpo.py, Weeks 6 and 7. Use a recent release: it was written against the current TRL docs.
+trl
+# Only for `train --load-in-4bit` (NVIDIA GPUs):
+# bitsandbytes>=0.43
+# Optional, makes harness.py much faster (its default engine). It needs a GPU with compute capability 7.5
+# or higher (a T4 is fine, a Kaggle P100 is not) and may replace your torch version, so install it first
+# in a fresh session. Without it, add `--engine hf` to every harness.py command.
+# vllm
