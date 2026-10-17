@@ -213,9 +213,9 @@ def cmd_inspect(a):
     source = a.data or DATASET
     print(f"Checked {n} rows of {source} with the {a.base} tokenizer: {len(lengths)} convert cleanly, {bad} do not.")
     if lengths:
-        q = statistics.quantiles(lengths, n=10)
+        p90 = statistics.quantiles(lengths, n=10)[-1] if len(lengths) > 1 else lengths[0]
         print(f"Token lengths: median {int(statistics.median(lengths))}, "
-              f"p90 {int(q[-1])}, max {max(lengths)}")
+              f"p90 {int(p90)}, max {max(lengths)}")
         for cap in (2048, 4096, 8192):
             share = sum(l <= cap for l in lengths) / len(lengths)
             print(f"  fits in {cap:>5} tokens: {share:.0%}")
